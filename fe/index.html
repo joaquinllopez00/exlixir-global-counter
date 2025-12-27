@@ -10,34 +10,68 @@
      <h1>Hello World</h1>
     <div id="counter">0</div>
     <button id="increment">Increment</button>
+    <button id="increment-1000000">Increment 1000000</button>
     <button id="decrement">Decrement</button>
+    <button id="decrement-1000000"> Decrement 1000000</button>
     <button id="reset">Reset</button>
     <script>
         const counterEl = document.getElementById('counter');
         const incrementBtn = document.getElementById('increment');
+        const increment1000000Btn = document.getElementById('increment-1000000');
         const decrementBtn = document.getElementById('decrement');
+        const decrement1000000Btn = document.getElementById('decrement-1000000');
         const resetBtn = document.getElementById('reset');
 
+        let abortController;
+        const createAbortController = () => {
+            if (abortController) {
+                abortController.abort();
+            }
+            abortController = new AbortController();
+            return abortController.signal;
+        };
+
         async function updateCounter() {
-            const response = await fetch('/api/count');
+            const signal = createAbortController();
+            const response = await fetch('/api/count', { signal });
             const data = await response.json();
             counterEl.textContent = data.count;
         }
 
         incrementBtn.addEventListener('click', async () => {
-            const response = await fetch('/api/increment', { method: 'POST' });
+            const signal = createAbortController();
+            const response = await fetch('/api/increment', { method: 'POST', signal });
             const data = await response.json();
             counterEl.textContent = data.count;
         });
 
         decrementBtn.addEventListener('click', async () => {
-            const response = await fetch('/api/decrement', { method: 'POST' });
+            const signal = createAbortController();
+            const response = await fetch('/api/decrement', { method: 'POST', signal });
             const data = await response.json();
             counterEl.textContent = data.count;
         });
+        increment1000000Btn.addEventListener('click', async () => {
+            const signal = createAbortController();
+            for (let i = 0; i < 1000000; i++) { 
+                const response = await fetch('/api/increment', { method: 'POST', signal });
+                const data = await response.json();
+                counterEl.textContent = data.count;
+            }
+        });
+
+        decrement1000000Btn.addEventListener('click', async () => {
+            const signal = createAbortController();
+            for (let i = 0; i < 1000000; i++) { 
+            const response = await fetch('/api/decrement', { method: 'POST', signal });
+            const data = await response.json();
+            counterEl.textContent = data.count;
+            }
+        });
 
         resetBtn.addEventListener('click', async () => {
-            const response = await fetch('/api/reset', { method: 'POST' });
+            const signal = createAbortController();
+            const response = await fetch('/api/reset', { method: 'POST', signal });
             const data = await response.json();
             counterEl.textContent = data.count;
         });
